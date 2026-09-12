@@ -1,0 +1,304 @@
+# code created by Airto Basoalto 12/09/26
+# doesnt include gravitational interactions from other planets to each other so might add to a later iteration
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.animation import FuncAnimation 
+
+# mass of planets and stars
+M_E = 5.972e24  # Mass of Earth in kg
+M_S = 1.989e30  # Mass of Sun in kg
+M_ME = 3.301e23  # Mass of Mercury in kg
+M_V = 6.39e23   # Mass of Venus in kg
+M_MA = 6.4171e23  # Mass of Mars in kg
+M_J = 1.898e27  # Mass of Jupiter in kg
+M_SA = 5.683e26  # Mass of Saturn in kg
+M_U = 8.681e25  # Mass of Uranus in kg
+M_N = 1.024e26  # Mass of Neptune in kg
+
+# radii of planets and stars
+R_E = 6.371e6  # Radius of Earth in meters
+R_S = 6.96e8   # Radius of Sun in meters
+R_ME = 2.439e6  # Radius of Mercury in meters
+R_V = 6.052e6   # Radius of Venus in meters
+R_MA = 3.3895e6  # Radius of Mars in meters
+R_J = 6.9911e7  # Radius of Jupiter in meters
+R_SA = 5.8232e7  # Radius of Saturn in meters
+R_U = 2.5362e7  # Radius of Uranus in meters
+R_N = 2.4622e7  # Radius of Neptune in meters
+
+# initial velocities of planets and stars
+V_Ex = 29780  # Initial x velocity of Earth in m/s
+V_Ey = 0.0  # Initial y velocity of Earth in m/s
+
+V_MEx = 47360  # Initial x velocity of Mercury in m/s
+V_MEy = 0.0  # Initial y velocity of Mercury in m/s
+
+V_Vx = 35020  # Initial x velocity of Venus in m/s
+V_Vy = 0.0  # Initial y velocity of Venus in m/s
+
+V_MAx = 24070  # Initial x velocity of Mars in m/s
+V_MAy = 0.0  # Initial y velocity of Mars in m/s
+
+V_Jx = 13070  # Initial x velocity of Jupiter in m/s
+V_Jy = 0.0  # Initial y velocity of Jupiter in m/s
+
+V_SAx = 9640  # Initial x velocity of Saturn in m/s
+V_SAy = 0.0  # Initial y velocity of Saturn in m/s
+
+V_Ux = 6800  # Initial x velocity of Uranus in m/s
+V_Uy = 0.0  # Initial y velocity of Uranus in m/s
+
+V_Nx = 5400  # Initial x velocity of Neptune in m/s
+V_Ny = 0.0  # Initial y velocity of Neptune in m/s
+
+
+#initial positions of planets and stars
+
+X_S = 0.0  # Initial x position of Sun in meters
+Y_S = 0.0  # Initial y position of Sun in meters
+
+X_E = 0.0  # Initial x position of Earth in meters
+Y_E = 1.496e11  # Initial y position of Earth in meters
+
+X_ME = 0.0  # Initial x position of Mercury in meters
+Y_ME = 5.791e10  # Initial y position of Mercury in meters
+
+X_V = 0.0  # Initial x position of Venus in meters
+Y_V = 1.082e11  # Initial y position of Venus in meters
+
+X_MA = 0.0  # Initial x position of Mars in meters
+Y_MA = 2.279e11  # Initial y position of Mars in meters
+
+X_J = 0.0  # Initial x position of Jupiter in meters
+Y_J = 7.785e11  # Initial y position of Jupiter in meters
+
+X_SA = 0.0  # Initial x position of Saturn in meters
+Y_SA = 1.433e12  # Initial y position of Saturn in meters
+
+X_U = 0.0  # Initial x position of Uranus in meters
+Y_U = 2.872e12  # Initial y position of Uranus in meters
+
+X_N = 0.0  # Initial x position of Neptune in meters
+Y_N = 4.495e12  # Initial y position of Neptune in meters
+
+
+
+# Gravitational constant
+G = 6.67430e-11  # Gravitational constant in m^3 kg^-1 s^-2
+
+
+K_S = -G * M_S  # Gravitational parameter for Sun
+K_E = -G * M_E  # Gravitational parameter for Earth
+K_M = -G * M_MA  # Gravitational parameter for Mars
+K_J = -G * M_J  # Gravitational parameter for Jupiter
+K_SA = -G * M_SA  # Gravitational parameter for Saturn
+K_U = -G * M_U  # Gravitational parameter for Uranus
+K_N = -G * M_N  # Gravitational parameter for Neptune
+K_ME = -G * M_ME  # Gravitational parameter for Mercury
+K_V = -G * M_V  # Gravitational parameter for Venus
+
+
+
+# time
+change_in_time = 1000  # Time step in seconds
+duration = 10000000  # Total duration of the simulation in seconds
+
+
+
+#arrays
+x_plot_E = []
+y_plot_E = []
+
+x_plot_ME = []
+y_plot_ME = []
+
+x_plot_V = []
+y_plot_V = []
+
+x_plot_MA = []
+y_plot_MA = []
+
+x_plot_J = []
+y_plot_J = []
+
+x_plot_SA = []
+y_plot_SA = []
+
+x_plot_U = []
+y_plot_U = []
+
+x_plot_N = []
+y_plot_N = []
+
+#physics
+
+for i in range(int(duration / change_in_time)):
+    # Update positions and velocities of planets and stars using Newton's law of gravitation
+    # For simplicity, we will only consider the gravitational influence of the Sun on the planets
+
+    # Calculate distances from the Sun
+    r_E = np.sqrt(X_E**2 + Y_E**2)
+    r_ME = np.sqrt(X_ME**2 + Y_ME**2)
+    r_V = np.sqrt(X_V**2 + Y_V**2)
+    r_MA = np.sqrt(X_MA**2 + Y_MA**2)
+    r_J = np.sqrt(X_J**2 + Y_J**2)
+    r_SA = np.sqrt(X_SA**2 + Y_SA**2)
+    r_U = np.sqrt(X_U**2 + Y_U**2)
+    r_N = np.sqrt(X_N**2 + Y_N**2)
+
+    # Calculate gravitational forces
+    a_Ex = K_S * X_E / r_E**3
+    a_Ey = K_S * Y_E / r_E**3
+
+    a_MEx = K_S * X_ME / r_ME**3
+    a_MEy = K_S * Y_ME / r_ME**3
+
+    a_Vx = K_S * X_V / r_V**3
+    a_Vy = K_S * Y_V / r_V**3
+
+    a_MAx = K_S * X_MA / r_MA**3
+    a_MAy = K_S * Y_MA / r_MA**3
+
+    a_Jx = K_S * X_J / r_J**3
+    a_Jy = K_S * Y_J / r_J**3
+
+    a_SAx = K_S * X_SA / r_SA**3
+    a_SAy = K_S * Y_SA / r_SA**3
+
+    a_Ux = K_S * X_U / r_U**3
+    a_Uy = K_S * Y_U / r_U**3
+
+    a_Nx = K_S * X_N / r_N**3
+    a_Ny = K_S * Y_N / r_N**3
+
+
+
+    V_Ey += a_Ey * change_in_time 
+    V_MEy += a_MEy * change_in_time
+    V_Vy += a_Vy * change_in_time
+    V_MAy += a_MAy * change_in_time
+    V_Jy += a_Jy * change_in_time
+    V_SAy += a_SAy * change_in_time
+    V_Uy += a_Uy * change_in_time
+    V_Ny += a_Ny * change_in_time
+
+    V_Ex += a_Ex * change_in_time
+    V_MEx += a_MEx * change_in_time
+    V_Vx += a_Vx * change_in_time
+    V_MAx += a_MAx * change_in_time
+    V_Jx += a_Jx * change_in_time
+    V_SAx += a_SAx * change_in_time
+    V_Ux += a_Ux * change_in_time
+    V_Nx += a_Nx * change_in_time
+
+    X_E += V_Ex * change_in_time
+    Y_E += V_Ey * change_in_time
+    X_ME += V_MEx * change_in_time
+    Y_ME += V_MEy * change_in_time
+    X_V += V_Vx * change_in_time
+    Y_V += V_Vy * change_in_time
+    X_MA += V_MAx * change_in_time
+    Y_MA += V_MAy * change_in_time
+    X_J += V_Jx * change_in_time
+    Y_J += V_Jy * change_in_time
+    X_SA += V_SAx * change_in_time
+    Y_SA += V_SAy * change_in_time
+    X_U += V_Ux * change_in_time
+    Y_U += V_Uy * change_in_time
+    X_N += V_Nx * change_in_time
+    Y_N += V_Ny * change_in_time
+
+    
+    x_plot_E.append(X_E)
+    y_plot_E.append(Y_E)
+
+    x_plot_ME.append(X_ME)
+    y_plot_ME.append(Y_ME)
+
+    x_plot_V.append(X_V)
+    y_plot_V.append(Y_V)
+
+    x_plot_MA.append(X_MA)
+    y_plot_MA.append(Y_MA)
+
+    x_plot_J.append(X_J)
+    y_plot_J.append(Y_J)
+
+    x_plot_SA.append(X_SA)
+    y_plot_SA.append(Y_SA)
+
+    x_plot_U.append(X_U)
+    y_plot_U.append(Y_U)
+
+    x_plot_N.append(X_N)
+    y_plot_N.append(Y_N)
+
+
+
+
+
+# amimation used AI to help with the animation code below
+
+fig, ax_plot = plt.subplots(figsize=(8, 8), facecolor='black')
+ax_plot.set_facecolor('black')
+
+# Draw Sun (Replacing Earth from the rocket code)
+sun_circle = plt.Circle((0, 0), R_S*70, color='yellow', label='Sun')
+ax_plot.add_patch(sun_circle)
+
+# 3. Create empty plot elements that will be updated every frame
+# Individual physical circle patches for each planet
+c_ME = plt.Circle((0, 0), R_ME*1000, color='darkgray', label='Mercury')
+c_V  = plt.Circle((0, 0), R_V*1000, color='gold', label='Venus')
+c_E  = plt.Circle((0, 0), R_E*1000, color='royalblue', label='Earth')
+c_MA = plt.Circle((0, 0), R_MA*1000, color='tomato', label='Mars')
+c_J  = plt.Circle((0, 0), R_J*1000, color='tan', label='Jupiter')
+c_SA = plt.Circle((0, 0), R_SA*1000, color='khaki', label='Saturn')
+c_U  = plt.Circle((0, 0), R_U*1000, color='lightcyan', label='Uranus')
+c_N  = plt.Circle((0, 0), R_N*1000, color='dodgerblue', label='Neptune')
+
+# Group the patches to easily manage drawing and blitting
+planet_patches = [c_ME, c_V, c_E, c_MA, c_J, c_SA, c_U, c_N]
+for p in planet_patches:
+    ax_plot.add_patch(p)
+
+# Completely hide grids, numbers, and borders
+ax_plot.axis('off')
+plt.title('Solar System Orbit Model', color='white')
+plt.legend(facecolor='black', edgecolor='white', labelcolor='white', loc='upper right')
+plt.axis('equal')
+
+# 4. Set strict axis limits based on Neptune's furthest data point
+max_val_N = max(max(np.abs(x_plot_N)), max(np.abs(y_plot_N))) * 1.1
+ax_plot.set_xlim(-max_val_N, max_val_N)
+ax_plot.set_ylim(-max_val_N, max_val_N)
+
+# 5. Define the update function for the animation
+# FRAME_STEP controls animation speed. Skipping 50 days per frame balances inner/outer planet movement.
+FRAME_STEP = 50 
+
+def update(frame):
+    idx = frame * FRAME_STEP
+    
+    # Safety check to avoid index errors
+    if idx >= len(x_plot_E):
+        idx = len(x_plot_E) - 1
+        
+    # Update the spatial center position of every planet patch
+    c_ME.set_center((x_plot_ME[idx], y_plot_ME[idx]))
+    c_V.set_center((x_plot_V[idx], y_plot_V[idx]))
+    c_E.set_center((x_plot_E[idx], y_plot_E[idx]))
+    c_MA.set_center((x_plot_MA[idx], y_plot_MA[idx]))
+    c_J.set_center((x_plot_J[idx], y_plot_J[idx]))
+    c_SA.set_center((x_plot_SA[idx], y_plot_SA[idx]))
+    c_U.set_center((x_plot_U[idx], y_plot_U[idx]))
+    c_N.set_center((x_plot_N[idx], y_plot_N[idx]))
+    
+    return planet_patches
+
+# 6. Run the animation loop
+total_frames = len(x_plot_E) // FRAME_STEP
+ani = FuncAnimation(fig, update, frames=total_frames, interval=20, blit=True)
+
+plt.show()
