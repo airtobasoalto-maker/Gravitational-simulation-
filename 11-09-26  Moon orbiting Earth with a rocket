@@ -1,0 +1,143 @@
+# code created by Airto Basoalto 11/09/26
+
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.animation import FuncAnimation 
+
+M_E = 5.972e24  # Mass of Earth in kg
+G = 6.67430e-11  # Gravitational constant 
+R_E = 6.371e6  # Radius of Earth in meters
+M_M = 7.348e22  # Mass of Moon in kg
+R_M = 1.737e6  # Radius of Moon in meters
+
+K_E = G * M_E  # Gravitational parameter for Earth
+K_M = G * M_M  # Gravitational parameter for Moon 
+
+x0 = 0.0  # Initial x position in meters
+y0 = R_E + 400e5  # Initial y position in meters (400 km above Earth's surface)
+vx0 = 4000.0  # Initial x velocity in m/s 
+vy0 = 0.0  # Initial y velocity in m/s
+
+x0M = 0.0 # initial x position of the moon
+y0M = R_E + 400e6  # initial y position of the moon (400,000 km above Earth's surface)
+Vx0M = 1000.0 # initial x velocity of the moon
+Vy0M = 0.0 # initial y velocity of the moon
+
+x_plot_R = []
+y_plot_R = []
+x_plot_M = []
+y_plot_M = []
+
+change_t = 10  # Time step for plotting in seconds
+duration = 600000
+
+
+
+for i in range(duration):
+
+
+
+    r_R = np.sqrt(x0**2 + y0**2)
+    r_M = np.sqrt(x0M**2 + y0M**2)
+
+    r_RM = np.sqrt((x0M - x0)**2 + (y0M - y0)**2)
+
+    if r_R < R_E:
+        print("Rocket has crashed into Earth!")
+        break
+
+    ax = -K_E * x0 / r_R**3 + K_M * (x0M - x0) / r_RM**3
+    ay = -K_E * y0 / r_R**3 + K_M * (y0M - y0) / r_RM**3
+
+    vx0 += ax * change_t
+    vy0 += ay * change_t
+
+    x0 += vx0 * change_t
+    y0 += vy0 * change_t
+
+    axM = -K_E * x0M / r_M**3
+    ayM = -K_E * y0M / r_M**3
+
+    Vx0M += axM * change_t
+    Vy0M += ayM * change_t
+
+    x0M += Vx0M * change_t
+    y0M += Vy0M * change_t
+
+    x_plot_R.append(x0)
+    y_plot_R.append(y0)
+    x_plot_M.append(x0M)
+    y_plot_M.append(y0M)
+
+
+# used AI to help with the animation code below
+
+
+fig, ax_plot = plt.subplots(figsize=(8, 8), facecolor='black')
+ax_plot.set_facecolor('black')
+
+# Draw Earth
+earth_circle = plt.Circle((0, 0), R_E, color='royalblue', label='Earth')
+ax_plot.add_patch(earth_circle)
+
+# 3. Create empty plot elements that will be updated every frame
+# This draws the moving trail line
+trail_line, = ax_plot.plot([], [], color='orange', alpha=0.6, label='Trajectory')
+# This draws the rocket as a circle/dot marker
+rocket_dot, = ax_plot.plot([], [], color='cyan', marker='o', markersize=4, label='Rocket')
+# This draws the moon as a circle/dot marker
+moon_circle = plt.Circle((0, 0), R_M, color='lightgray', label='Moon')
+ax_plot.add_patch(moon_circle)
+
+# Completely hide grids, numbers, and borders
+ax_plot.axis('off')
+plt.title('Rocket Orbit around Earth', color='white')
+plt.legend(facecolor='black', edgecolor='white', labelcolor='white')
+plt.axis('equal')
+
+
+# 4. Set strict axis limits based on data so the screen doesn't bounce around
+max_val_M = max(max(np.abs(x_plot_M)), max(np.abs(y_plot_M))) * 1.1
+max_val_R = max(max(np.abs(x_plot_R)), max(np.abs(y_plot_R))) * 1.1
+
+#if max_val_M > max_val_R:
+#    ax_plot.set_xlim(-max_val_M, max_val_M)
+#    ax_plot.set_ylim(-max_val_M, max_val_M)
+#else:
+#    ax_plot.set_xlim(-max_val_R, max_val_R)
+#    ax_plot.set_ylim(-max_val_R, max_val_R)
+
+#ax_plot.set_xlim(-max_val_M, max_val_M)
+#ax_plot.set_ylim(-max_val_M, max_val_M)
+ax_plot.set_xlim(-max_val_R, max_val_R)
+ax_plot.set_ylim(-max_val_R, max_val_R)
+
+# 5. Define the update function for the animation
+# 'frame' corresponds to the index of our x_plot/y_plot arrays
+def update(frame):
+    # To speed up the visualization, skip frames (step by 500)
+    idx = frame * 500
+    
+    # Safety check to avoid index errors
+    if idx >= len(x_plot_R):
+        idx = len(x_plot_R) - 1
+        
+    # Update the historical trail line up to the current index
+    trail_line.set_data(x_plot_R[:idx], y_plot_R[:idx])
+    
+    # Update the rocket's current exact circle position
+    rocket_dot.set_data([x_plot_R[idx]], [y_plot_R[idx]])
+    
+    # Update the moon's current exact circle position
+    moon_circle.set_center((x_plot_M[idx], y_plot_M[idx]))
+    
+    return trail_line, rocket_dot, moon_circle
+
+# 6. Run the animation loop
+# frames calculation ensures it plays from start to finish smoothly
+total_frames = len(x_plot_R) // 500
+ani = FuncAnimation(fig, update, frames=total_frames, interval=20, blit=True)
+
+plt.show()
