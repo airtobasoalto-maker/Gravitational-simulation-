@@ -1,5 +1,6 @@
 # code created by Airto Basoalto 16/09/26
 # this code is for a 2D version of the 3 body problem (may add a 3D version later)
+# AI was only used for the animation part of the simulation. All of the calculations were done by my self 
 
 import matplotlib.pyplot as plt
 import numpy as np
