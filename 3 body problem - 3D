@@ -1,0 +1,199 @@
+# code created by Airto Basoalto 16/09/26
+# implamentation of a 3D version of the 3 body problem - I did this faster than I expected 
+# code can take some time to load and run, depending on the duration and change_t values.
+# once again the animation was created with the help of AI, but I did the physics calculations and the rest of the code myself.
+
+import numpy as np
+from matplotlib.animation import FuncAnimation 
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+
+
+G = 6.67430e-11  # Gravitational constant
+M_S = 1.989e30  # Mass of the Sun in kg
+
+#mass of the three stars
+M_1 = 0.5 * M_S  
+M_2 = 1.0 * M_S  
+M_3 = 2.0 * M_S  
+
+# constants for physics calculations
+K_1 = G * M_1  
+K_2 = G * M_2  
+K_3 = G * M_3  
+
+# initial positions and velocities of the three stars
+x_1 = 1.0e11  
+y_1 = -1.0e11  
+z_1 = 1.0e10
+x_2 = 1.5e11  
+y_2 = 1.0e11
+z_2 = 0.0
+x_3 = 2.0e11  
+y_3 = -1.0e11  
+z_3 = -1.0e10
+
+v_x1 = 0.0  
+v_y1 = 30000.0  
+v_z1 = 0.0
+v_x2 = 0.0  
+v_y2 = 25000.0  
+v_z2 = 0.0
+v_x3 = 20000.0
+v_y3 =  100.0
+v_z3 = 0.0
+
+# array to store the positions for plotting
+x_plot1 = []
+y_plot1 = []
+z_plot1 = []
+x_plot2 = []
+y_plot2 = []
+z_plot2 = []
+x_plot3 = []
+y_plot3 = []
+z_plot3 = []
+
+# simulation parameters
+change_t = 1000.0  
+duration = 10000000 
+
+# Physics calculation loop
+for i in range(duration):
+    r_12 = np.sqrt((x_2 - x_1) ** 2 + (y_2 - y_1) ** 2 + (z_2 - z_1) ** 2)
+    r_13 = np.sqrt((x_3 - x_1) ** 2 + (y_3 - y_1) ** 2 + (z_3 - z_1) ** 2)
+    r_23 = np.sqrt((x_3 - x_2) ** 2 + (y_3 - y_2) ** 2 + (z_3 - z_2) ** 2)
+
+    
+    ax1 = K_2 * (x_2 - x_1) / r_12 ** 3 + K_3 * (x_3 - x_1) / r_13 ** 3
+    ay1 = K_2 * (y_2 - y_1) / r_12 ** 3 + K_3 * (y_3 - y_1) / r_13 ** 3
+    az1 = K_2 * (z_2 - z_1) / r_12 ** 3 + K_3 * (z_3 - z_1) / r_13 ** 3
+
+    ax2 = K_1 * (x_1 - x_2) / r_12 ** 3 + K_3 * (x_3 - x_2) / r_23 ** 3
+    ay2 = K_1 * (y_1 - y_2) / r_12 ** 3 + K_3 * (y_3 - y_2) / r_23 ** 3
+    az2 = K_1 * (z_1 - z_2) / r_12 ** 3 + K_3 * (z_3 - z_2) / r_23 ** 3
+
+    ax3 = K_1 * (x_1 - x_3) / r_13 ** 3 + K_2 * (x_2 - x_3) / r_23 ** 3
+    ay3 = K_1 * (y_1 - y_3) / r_13 ** 3 + K_2 * (y_2 - y_3) / r_23 ** 3
+    az3 = K_1 * (z_1 - z_3) / r_13 ** 3 + K_2 * (z_2 - z_3) / r_23 ** 3
+
+    v_x1 += ax1 * change_t
+    v_y1 += ay1 * change_t
+    v_z1 += az1 * change_t
+    v_x2 += ax2 * change_t
+    v_y2 += ay2 * change_t
+    v_z2 += az2 * change_t
+    v_x3 += ax3 * change_t
+    v_y3 += ay3 * change_t
+    v_z3 += az3 * change_t
+
+    x_1 += v_x1 * change_t
+    y_1 += v_y1 * change_t
+    z_1 += v_z1 * change_t
+    x_2 += v_x2 * change_t
+    y_2 += v_y2 * change_t
+    z_2 += v_z2 * change_t
+    x_3 += v_x3 * change_t
+    y_3 += v_y3 * change_t
+    z_3 += v_z3 * change_t
+
+    x_plot1.append(x_1)
+    y_plot1.append(y_1)
+    z_plot1.append(z_1)
+    x_plot2.append(x_2)
+    y_plot2.append(y_2)
+    z_plot2.append(z_2)
+    x_plot3.append(x_3)
+    y_plot3.append(y_3)
+    z_plot3.append(z_3)
+
+# animation setup
+
+fig = plt.figure(figsize=(8, 8), facecolor='black')
+# Create a 3D projection axes layout area
+ax_plot = fig.add_subplot(111, projection='3d', facecolor='black')
+
+# Create empty plot elements supporting 3D dimensions [X, Y, Z]
+trail1, = ax_plot.plot([], [], [], color='cyan', alpha=0.6, linewidth=1.5, label='Star 1 Path')
+trail2, = ax_plot.plot([], [], [], color='orange', alpha=0.6, linewidth=1.5, label='Star 2 Path')
+trail3, = ax_plot.plot([], [], [], color='magenta', alpha=0.6, linewidth=1.5, label='Star 3 Path')
+
+# 3D points representing the stars (sizes proportional to the given mass properties)
+star1, = ax_plot.plot([], [], [], color='cyan', marker='o', markersize=6, linestyle='', label='Star 1')
+star2, = ax_plot.plot([], [], [], color='orange', marker='o', markersize=9, linestyle='', label='Star 2')
+star3, = ax_plot.plot([], [], [], color='magenta', marker='o', markersize=12, linestyle='', label='Star 3')
+
+# Completely hide grids, numbered axes, axes panes, and borders
+ax_plot.axis('off')
+ax_plot.grid(False)
+ax_plot.set_title('Chaotic 3D 3-Body Simulation', color='white', fontsize=14)
+ax_plot.legend(facecolor='black', edgecolor='white', labelcolor='white', loc='upper right')
+
+# FRAME_STEP controls frame-skipping playback speed
+FRAME_STEP = 50  
+
+def update(frame):
+    idx = frame * FRAME_STEP
+    
+    if idx >= len(x_plot1):
+        idx = len(x_plot1) - 1
+        
+    # Update historical trailing paths in 3 dimensions
+    trail1.set_data(x_plot1[:idx], y_plot1[:idx])
+    trail1.set_3d_properties(z_plot1[:idx])
+    
+    trail2.set_data(x_plot2[:idx], y_plot2[:idx])
+    trail2.set_3d_properties(z_plot2[:idx])
+    
+    trail3.set_data(x_plot3[:idx], y_plot3[:idx])
+    trail3.set_3d_properties(z_plot3[:idx])
+    
+    # Update current exact single star locations
+    star1.set_data([x_plot1[idx]], [y_plot1[idx]])
+    star1.set_3d_properties([z_plot1[idx]])
+    
+    star2.set_data([x_plot2[idx]], [y_plot2[idx]])
+    star2.set_3d_properties([z_plot2[idx]])
+    
+    star3.set_data([x_plot3[idx]], [y_plot3[idx]])
+    star3.set_3d_properties([z_plot3[idx]])
+    
+    # Calculate 3D bounding box dimensions tightly centered around current values
+    current_x = [x_plot1[idx], x_plot2[idx], x_plot3[idx]]
+    current_y = [y_plot1[idx], y_plot2[idx], y_plot3[idx]]
+    current_z = [z_plot1[idx], z_plot2[idx], z_plot3[idx]]
+    
+    # Midpoint spatial grouping center
+    center_x = sum(current_x) / 3
+    center_y = sum(current_y) / 3
+    center_z = sum(current_z) / 3
+    
+    # Calculate maximal bounding diameter profile spanning between objects
+    max_span = max(
+        max(current_x) - min(current_x),
+        max(current_y) - min(current_y),
+        max(current_z) - min(current_z)
+    )
+    
+    # Minimum scaling buffer safety ceiling prevent crash updates
+    if max_span < 5e10:
+        max_span = 5e10
+        
+    zoom_radius = max_span * 0.75  # 25% padding space frame margin
+    
+    # Set matching axis boundaries across all three axis targets
+    ax_plot.set_xlim3d(center_x - zoom_radius, center_x + zoom_radius)
+    ax_plot.set_ylim3d(center_y - zoom_radius, center_y + zoom_radius)
+    ax_plot.set_zlim3d(center_z - zoom_radius, center_z + zoom_radius)
+    
+    # Optional Effect: Slowly spin the camera view angle every frame
+    ax_plot.view_init(elev=20, azim=frame * 0.2)
+    
+    return trail1, trail2, trail3, star1, star2, star3
+
+total_frames = len(x_plot1) // FRAME_STEP
+
+# Blit is disabled to accommodate dynamic axes manipulation resizing scaling
+ani = FuncAnimation(fig, update, frames=total_frames, interval=25, blit=False)
+
+plt.show()
